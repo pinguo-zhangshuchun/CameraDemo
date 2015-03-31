@@ -1,12 +1,41 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0099cc">
+    android:background="#000000">
 
     <SurfaceView
         android:id="@+id/camera_surfaceview"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent" />
 
-</RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/camera_layout_controller"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+
+        <Button
+            android:id="@+id/camera_btn_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/btn_rotate_selector"
+            android:padding="10dip" />
+
+        <Button
+            android:background="@drawable/btn_shutter_selector"
+            android:id="@+id/camera_btn_shutter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/camera_seekbar_focus"
+            android:layout_centerHorizontal="true" />
+
+        <SeekBar
+            android:id="@+id/camera_seekbar_focus"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:padding="10dip" />
+
+    </RelativeLayout>
+</FrameLayout>
