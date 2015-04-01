@@ -12,12 +12,10 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.SeekBar;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.lang.ref.SoftReference;
 import java.util.List;
-
 import kari.com.org.camerademo.kari.com.org.cameradeamo.entity.EventCode;
 import kari.com.org.camerademo.kari.com.org.cameradeamo.entity.HardwareCamera;
 import kari.com.org.camerademo.kari.com.org.camerademo.util.FileUtil;
@@ -65,8 +63,8 @@ public class CameraActivity extends Activity
                 Log.e(TAG, "Failed setPreviewDisplay");
             }
 
-            mCamera.setDisplayOrientation(90);
-            mCamera.startPreview();
+         mCamera.setDisplayOrientation(90);
+         mCamera.startPreview();
         }
     }
 
@@ -79,7 +77,6 @@ public class CameraActivity extends Activity
     @Override
     protected void onDestroy() {
         mRunFlag = false;
-        HardwareCamera.freeInstance();
         super.onDestroy();
     }
 
@@ -144,47 +141,42 @@ public class CameraActivity extends Activity
                 mEscapeCounter = 0;
             }
         });
+
+        btnShutter.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Log.d(TAG, "onLongClick");
+                return false;
+            }
+        });
+
+        btnShutter.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (MotionEvent.ACTION_UP == event.getAction()) {
+                    Log.d(TAG, "action up");
+                }
+                return false;
+            }
+        });
     }
 
     public void surfaceCreated(SurfaceHolder holder) {
         Log.d(TAG, "surfaceCreated");
-        try {
+
+        if (null == mCamera) {
             mCamera = HardwareCamera.getsInstance().openDefault();
-        } catch (Exception e) {
-            e.printStackTrace();
-            mCamera = null;
-            return;
         }
 
         if (null != mCamera) {
             Camera.Parameters param = mCamera.getParameters();
             seekBarFocus.setMax(param.getMaxZoom());
-            param.setFocusMode(Camera.Parameters.FOCUS_MODE_MACRO);
-
-            /*
-            Camera.Size size =  HardwareCamera.getsInstance().getBestSupportedSize();
-            if (null != size) {
-                param.setPreviewSize(size.width, size.height);
-            }
-            */
+           // param.setFocusMode(Camera.Parameters.FOCUS_MODE_MACRO);
 
             if (!param.isZoomSupported()) {
                 seekBarFocus.setVisibility(View.GONE);
             }
-
             mCamera.setParameters(param);
-
-            mCamera.autoFocus(new Camera.AutoFocusCallback() {
-                @Override
-                public void onAutoFocus(boolean success, Camera camera) {
-                    if (success) {
-                        Log.d(TAG, "auto focus");
-                    } else {
-                        Log.d(TAG, "Failed auto focus");
-                    }
-                }
-            });
-
             mCamera.setDisplayOrientation(90);
         }
     }
@@ -217,6 +209,7 @@ public class CameraActivity extends Activity
 
         switch (v.getId()) {
             case R.id.camera_btn_shutter:
+                Log.d(TAG, "onClick");
                 mCamera.takePicture(null, null, new Camera.PictureCallback() {
                     @Override
                     public void onPictureTaken(byte[] data, Camera camera) {
@@ -227,6 +220,7 @@ public class CameraActivity extends Activity
                 break;
 
             case R.id.camera_btn_switch:
+                seekBarFocus.setProgress(0);
                 mCamera = HardwareCamera.getsInstance().switchCamera();
                 try {
                     mCamera.setPreviewDisplay(mSurfaceHolder);

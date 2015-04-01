@@ -27,10 +27,6 @@ public class HardwareCamera {
         return sInstance;
     }
 
-    public static void freeInstance() {
-        sInstance = null;
-    }
-
     public void freeCamera() {
         if (null != mCameraFront) {
             mCameraFront.stopPreview();
