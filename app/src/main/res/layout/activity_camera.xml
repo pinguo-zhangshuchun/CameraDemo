@@ -12,29 +12,23 @@
     <RelativeLayout
         android:id="@+id/camera_layout_controller"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
+        android:layout_height="fill_parent"
+        android:background="@android:color/transparent">
 
-        <Button
-            android:id="@+id/camera_btn_switch"
+        <fragment
+            android:id="@+id/fragment_title"
+            android:name="kari.com.org.camerademo.TitleFragment"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:background="@drawable/btn_rotate_selector"
+            android:layout_alignParentTop="true"
             android:padding="10dip" />
 
-        <SeekBar
-            android:id="@+id/camera_seekbar_focus"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_above="@+id/camera_btn_shutter"
-            android:padding="10dip" />
-
-        <Button
-            android:id="@+id/camera_btn_shutter"
+        <fragment
+            android:id="@+id/fragment_foot"
+            android:name="kari.com.org.camerademo.FootFragment"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:background="@drawable/btn_shutter_selector" />
+            android:layout_centerHorizontal="true" />
     </RelativeLayout>
 </FrameLayout>

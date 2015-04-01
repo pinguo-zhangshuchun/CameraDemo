@@ -1,29 +1,28 @@
-package kari.com.org.camerademo.kari.com.org.cameradeamo.entity;
+package kari.com.org.camerademo;
 
 import android.hardware.Camera;
 import android.util.Log;
-
 import java.util.List;
 
 /**
  * Created by ws-kari on 15-3-31.
  */
-public class HardwareCamera {
-    final static String TAG = "HardwareCamera";
+public final class CameraManager {
+    final static String TAG = "CameraManager";
 
     private int mCount;
     private int mCurrentId;
     private Camera mCameraBack;
     private Camera mCameraFront;
-    private static HardwareCamera sInstance = new HardwareCamera();
+    private static CameraManager sInstance = new CameraManager();
 
-    private HardwareCamera() {
+    private CameraManager() {
         mCurrentId = Camera.CameraInfo.CAMERA_FACING_BACK;
         mCount = Camera.getNumberOfCameras();
         Log.d(TAG, "camera count:" + mCount);
     }
 
-    public static HardwareCamera getsInstance() {
+    public static CameraManager getsInstance() {
         return sInstance;
     }
 
@@ -106,7 +105,7 @@ public class HardwareCamera {
 
     public Camera.Size getBestSupportedSize() {
         Camera camera = mCameraBack;
-        if (null ==  camera) {
+        if (null == camera) {
             camera = mCameraFront;
         }
         if (null == camera) {
@@ -128,4 +127,19 @@ public class HardwareCamera {
         return largestSize;
     }
 
+    public boolean isFrontCameraOpen() {
+        if (null != mCameraFront) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean isBackCameraOpen() {
+        if (null != mCameraBack) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
