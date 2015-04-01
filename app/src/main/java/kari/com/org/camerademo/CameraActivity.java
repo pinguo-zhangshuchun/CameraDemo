@@ -126,7 +126,7 @@ public class CameraActivity extends Activity
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 mEscapeCounter = 0;
                 Camera.Parameters param = mCamera.getParameters();
-                if (param.isSmoothZoomSupported()) {
+                if (param.isZoomSupported()) {
                     param.setZoom(progress);
                 } else {
                     Log.d(TAG, "Not support setZoom");
@@ -168,7 +168,7 @@ public class CameraActivity extends Activity
             }
             */
 
-            if (!param.isSmoothZoomSupported()) {
+            if (!param.isZoomSupported()) {
                 seekBarFocus.setVisibility(View.GONE);
             }
 
