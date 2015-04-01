@@ -13,10 +13,14 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.SeekBar;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.lang.ref.SoftReference;
+import java.util.List;
 
 import kari.com.org.camerademo.kari.com.org.cameradeamo.entity.EventCode;
 import kari.com.org.camerademo.kari.com.org.cameradeamo.entity.HardwareCamera;
+import kari.com.org.camerademo.kari.com.org.camerademo.util.FileUtil;
 
 /**
  * Camera Activity
@@ -53,7 +57,17 @@ public class CameraActivity extends Activity
     @Override
     protected void onResume() {
         super.onResume();
-        HardwareCamera.getsInstance();
+        mCamera = HardwareCamera.getsInstance().openDefault();
+        if (null != mCamera) {
+            try {
+                mCamera.setPreviewDisplay(mSurfaceHolder);
+            } catch (Exception e) {
+                Log.e(TAG, "Failed setPreviewDisplay");
+            }
+
+            mCamera.setDisplayOrientation(90);
+            mCamera.startPreview();
+        }
     }
 
     @Override
@@ -111,6 +125,13 @@ public class CameraActivity extends Activity
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 mEscapeCounter = 0;
+                Camera.Parameters param = mCamera.getParameters();
+                if (param.isSmoothZoomSupported()) {
+                    param.setZoom(progress);
+                } else {
+                    Log.d(TAG, "Not support setZoom");
+                }
+                mCamera.setParameters(param);
             }
 
             @Override
@@ -136,6 +157,34 @@ public class CameraActivity extends Activity
         }
 
         if (null != mCamera) {
+            Camera.Parameters param = mCamera.getParameters();
+            seekBarFocus.setMax(param.getMaxZoom());
+            param.setFocusMode(Camera.Parameters.FOCUS_MODE_MACRO);
+
+            /*
+            Camera.Size size =  HardwareCamera.getsInstance().getBestSupportedSize();
+            if (null != size) {
+                param.setPreviewSize(size.width, size.height);
+            }
+            */
+
+            if (!param.isSmoothZoomSupported()) {
+                seekBarFocus.setVisibility(View.GONE);
+            }
+
+            mCamera.setParameters(param);
+
+            mCamera.autoFocus(new Camera.AutoFocusCallback() {
+                @Override
+                public void onAutoFocus(boolean success, Camera camera) {
+                    if (success) {
+                        Log.d(TAG, "auto focus");
+                    } else {
+                        Log.d(TAG, "Failed auto focus");
+                    }
+                }
+            });
+
             mCamera.setDisplayOrientation(90);
         }
     }
@@ -168,6 +217,13 @@ public class CameraActivity extends Activity
 
         switch (v.getId()) {
             case R.id.camera_btn_shutter:
+                mCamera.takePicture(null, null, new Camera.PictureCallback() {
+                    @Override
+                    public void onPictureTaken(byte[] data, Camera camera) {
+                        mCamera.startPreview();
+                        FileUtil.saveJpeg(data, null);
+                    }
+                });
                 break;
 
             case R.id.camera_btn_switch:

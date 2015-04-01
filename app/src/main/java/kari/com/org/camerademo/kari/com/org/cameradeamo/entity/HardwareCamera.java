@@ -3,6 +3,8 @@ package kari.com.org.camerademo.kari.com.org.cameradeamo.entity;
 import android.hardware.Camera;
 import android.util.Log;
 
+import java.util.List;
+
 /**
  * Created by ws-kari on 15-3-31.
  */
@@ -105,4 +107,29 @@ public class HardwareCamera {
             return switchBackCamera();
         }
     }
+
+    public Camera.Size getBestSupportedSize() {
+        Camera camera = mCameraBack;
+        if (null ==  camera) {
+            camera = mCameraFront;
+        }
+        if (null == camera) {
+            Log.e(TAG, "camera is null");
+            return null;
+        }
+
+        Camera.Parameters param = camera.getParameters();
+        List<Camera.Size> sizes = param.getSupportedPictureSizes();
+        Camera.Size largestSize = sizes.get(0);
+        int largestArea = sizes.get(0).height * sizes.get(0).width;
+        for (Camera.Size s : sizes) {
+            int area = s.width * s.height;
+            if (area > largestArea) {
+                largestArea = area;
+                largestSize = s;
+            }
+        }
+        return largestSize;
+    }
+
 }
