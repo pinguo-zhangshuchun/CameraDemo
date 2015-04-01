@@ -12,10 +12,12 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.SeekBar;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.lang.ref.SoftReference;
 import java.util.List;
+
 import kari.com.org.camerademo.kari.com.org.cameradeamo.entity.EventCode;
 import kari.com.org.camerademo.kari.com.org.cameradeamo.entity.HardwareCamera;
 import kari.com.org.camerademo.kari.com.org.camerademo.util.FileUtil;
@@ -63,8 +65,8 @@ public class CameraActivity extends Activity
                 Log.e(TAG, "Failed setPreviewDisplay");
             }
 
-         mCamera.setDisplayOrientation(90);
-         mCamera.startPreview();
+            mCamera.setDisplayOrientation(90);
+            mCamera.startPreview();
         }
     }
 
@@ -88,6 +90,8 @@ public class CameraActivity extends Activity
             MessageDialog.exit(this, tips);
             return;
         }
+
+
     }
 
     private void initHolder() {
@@ -146,6 +150,17 @@ public class CameraActivity extends Activity
             @Override
             public boolean onLongClick(View v) {
                 Log.d(TAG, "onLongClick");
+                mCamera.autoFocus(new Camera.AutoFocusCallback() {
+                    @Override
+                    public void onAutoFocus(boolean success, Camera camera) {
+                        if (success) {
+                            Log.d(TAG, "Success auto focus");
+                        } else {
+                            Log.d(TAG, "Failed auto focus");
+                        }
+                    }
+                });
+
                 return false;
             }
         });
@@ -171,7 +186,7 @@ public class CameraActivity extends Activity
         if (null != mCamera) {
             Camera.Parameters param = mCamera.getParameters();
             seekBarFocus.setMax(param.getMaxZoom());
-           // param.setFocusMode(Camera.Parameters.FOCUS_MODE_MACRO);
+            // param.setFocusMode(Camera.Parameters.FOCUS_MODE_MACRO);
 
             if (!param.isZoomSupported()) {
                 seekBarFocus.setVisibility(View.GONE);
@@ -193,6 +208,7 @@ public class CameraActivity extends Activity
             e.printStackTrace();
             return;
         }
+
         mCamera.startPreview();
     }
 
