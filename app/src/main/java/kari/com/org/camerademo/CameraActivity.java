@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -29,6 +30,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
     private TitleFragment mTitleFragment;
     private FootFragment mFootFragment;
     private TickCounter mTickCounter;
+    private ResolutionPopupWindow mPopupWindow;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,16 +64,22 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
 
     @Override
     protected void onPause() {
-        super.onPause();
         mTickCounter.pause();
         if (null != mCamera) {
             mCamera.stopPreview();
         }
         CameraManager.getsInstance().freeCamera();
+
+        if (null != mPopupWindow) {
+            mPopupWindow.dismiss();
+        }
+
+        super.onPause();
     }
 
     @Override
     protected void onDestroy() {
+
         super.onDestroy();
     }
 
@@ -80,6 +88,8 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
             String tips = getString(R.string.no_camera_tips);
             MessageDialog.exit(this, tips);
         }
+
+        mPopupWindow = new ResolutionPopupWindow(this);
     }
 
     private void initHolder() {
@@ -126,7 +136,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
             }
         });
 
-        mTickCounter.setNotifyCallback(5 * 1000, new TickCounter.OnNotifyCallback() {
+        mTickCounter.setNotifyCallback(3 * 1000, new TickCounter.OnNotifyCallback() {
             @Override
             public void onEscaped() {
                 Log.d(TAG, "onEscapted()");
@@ -134,7 +144,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
             }
         });
 
-        mTickCounter.setLongNotifiyCallback(25 * 1000, new TickCounter.OnNotifyCallback() {
+        mTickCounter.setLongNotifiyCallback(2 * 60 * 1000, new TickCounter.OnNotifyCallback() {
             @Override
             public void onEscaped() {
                 Log.d(TAG, "onLongEscapted()");
@@ -163,6 +173,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
         mFootFragment.getButtonGallery().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mTickCounter.pause();
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 intent.setType("image/*");
                 startActivity(intent);
@@ -172,10 +183,22 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
         mFootFragment.getButtonShutter().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mTickCounter.restart();
                 takePhone();
             }
         });
 
+        mFootFragment.getButtonSetting().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mTickCounter.restart();
+                if (mPopupWindow.isShowing()) {
+                    mPopupWindow.dismiss();
+                } else {
+                    mPopupWindow.showAtLocation(mLayoutController, Gravity.TOP, 0, 50);
+                }
+            }
+        });
     }
 
     private void updateSurfaceView() {
@@ -193,17 +216,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
             mCamera.setDisplayOrientation(90);
 
             List<Camera.Size> picSizes = param.getSupportedPictureSizes();
-            Log.d(TAG, "picture size:" + picSizes.size());
-            for (Camera.Size size : picSizes) {
-                Log.d(TAG, "width:" + size.width + ",height:" + size.height);
-            }
-
-            List<Camera.Size> prevSizes = param.getSupportedPreviewSizes();
-            Log.d(TAG, "preview size:" + prevSizes.size());
-            for (Camera.Size size : prevSizes) {
-                Log.d(TAG, "width:" + size.width + ",height:" + size.height);
-            }
-
+            mPopupWindow.setDataSource(picSizes);
         }
     }
 
