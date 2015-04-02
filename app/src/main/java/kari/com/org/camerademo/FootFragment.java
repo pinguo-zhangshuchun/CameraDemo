@@ -18,6 +18,8 @@ public class FootFragment extends Fragment {
 
     private SeekBar mSeekBarFocus;
     private Button mBtnShutter;
+    private Button mBtnGallery;
+    private Button mBtnSetting;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -46,6 +48,8 @@ public class FootFragment extends Fragment {
     private void initView(View view) {
         mSeekBarFocus = (SeekBar) view.findViewById(R.id.fragment_foot_seekbar_focus);
         mBtnShutter = (Button) view.findViewById(R.id.fragment_foot_btn_shutter);
+        mBtnGallery = (Button) view.findViewById(R.id.fragment_foot_btn_gallery);
+        mBtnSetting = (Button) view.findViewById(R.id.fragment_foot_btn_setting);
     }
 
     public void hideSeekbar() {
@@ -56,8 +60,16 @@ public class FootFragment extends Fragment {
         mSeekBarFocus.setVisibility(View.VISIBLE);
     }
 
-    public Button getButton() {
+    public Button getButtonShutter() {
         return mBtnShutter;
+    }
+
+    public Button getButtonGallery() {
+        return mBtnGallery;
+    }
+
+    public Button getButtonSetting() {
+        return mBtnSetting;
     }
 
     public SeekBar getSeekBar() {

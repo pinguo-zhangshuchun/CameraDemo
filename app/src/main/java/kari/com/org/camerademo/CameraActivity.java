@@ -1,6 +1,7 @@
 package kari.com.org.camerademo;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,7 +11,9 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.widget.SeekBar;
 
-import kari.com.org.camerademo.kari.com.org.camerademo.util.FileUtil;
+import java.util.List;
+
+import kari.com.org.camerademo.util.FileUtil;
 import kari.com.org.camerademo.util.TickCounter;
 
 /**
@@ -42,7 +45,6 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
     protected void onResume() {
         super.onResume();
         mTickCounter.restart();
-
         mCamera = CameraManager.getsInstance().openDefault();
         if (null != mCamera) {
             try {
@@ -132,7 +134,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
             }
         });
 
-        mTickCounter.setLongNotifiyCallback(6 * 1000, new TickCounter.OnNotifyCallback() {
+        mTickCounter.setLongNotifiyCallback(25 * 1000, new TickCounter.OnNotifyCallback() {
             @Override
             public void onEscaped() {
                 Log.d(TAG, "onLongEscapted()");
@@ -158,12 +160,22 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
             }
         });
 
-        mFootFragment.getButton().setOnClickListener(new View.OnClickListener() {
+        mFootFragment.getButtonGallery().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setType("image/*");
+                startActivity(intent);
+            }
+        });
+
+        mFootFragment.getButtonShutter().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 takePhone();
             }
         });
+
     }
 
     private void updateSurfaceView() {
@@ -179,6 +191,19 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
             Camera.Parameters param = mCamera.getParameters();
             mCamera.setParameters(param);
             mCamera.setDisplayOrientation(90);
+
+            List<Camera.Size> picSizes = param.getSupportedPictureSizes();
+            Log.d(TAG, "picture size:" + picSizes.size());
+            for (Camera.Size size : picSizes) {
+                Log.d(TAG, "width:" + size.width + ",height:" + size.height);
+            }
+
+            List<Camera.Size> prevSizes = param.getSupportedPreviewSizes();
+            Log.d(TAG, "preview size:" + prevSizes.size());
+            for (Camera.Size size : prevSizes) {
+                Log.d(TAG, "width:" + size.width + ",height:" + size.height);
+            }
+
         }
     }
 

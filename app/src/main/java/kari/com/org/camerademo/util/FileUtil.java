@@ -1,4 +1,4 @@
-package kari.com.org.camerademo.kari.com.org.camerademo.util;
+package kari.com.org.camerademo.util;
 
 import android.os.Environment;
 import android.util.Log;
