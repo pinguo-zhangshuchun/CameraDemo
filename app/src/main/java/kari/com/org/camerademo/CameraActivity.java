@@ -233,7 +233,18 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
             @Override
             public void onPictureTaken(byte[] data, Camera camera) {
                 mCamera.startPreview();
-                FileUtil.saveJpeg(data, null);
+                FileUtil.saveJpeg(data, new FileUtil.OnSavedListener() {
+                    @Override
+                    public void onSuccess(String path) {
+                        Log.d(TAG, "save success," + path);
+                        FileUtil.scanFile(CameraActivity.this, path);
+                    }
+
+                    @Override
+                    public void onFailed(String errorMsg) {
+                        Log.e(TAG, "Failed to save jpeg file," + errorMsg);
+                    }
+                });
             }
         });
     }

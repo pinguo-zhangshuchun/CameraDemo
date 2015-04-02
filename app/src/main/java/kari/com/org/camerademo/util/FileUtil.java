@@ -1,11 +1,13 @@
 package kari.com.org.camerademo.util;
 
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -17,6 +19,11 @@ public final class FileUtil {
     private final static String ROOT = Environment.getExternalStorageDirectory().getAbsolutePath();
     private final static String DIR = "camerademo";
     public final static String PATH = ROOT + "/" + DIR;
+
+    public static void scanFile(Context context, String fName) {
+        Uri data = Uri.parse("file:///" + fName);
+        context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, data));
+    }
 
     public static String genJpgName() {
         Date currentTime = new Date();
@@ -39,7 +46,7 @@ public final class FileUtil {
      * @param listener save result listener
      * @notice listener  not run in UI thread
      */
-    public static void saveJpeg(final byte[] data, final onSavedListener listener) {
+    public static void saveJpeg(final byte[] data, final OnSavedListener listener) {
         final File path = new File(PATH);
         if (!path.exists()) {
             path.mkdirs();
@@ -73,7 +80,7 @@ public final class FileUtil {
         }).start();
     }
 
-    public interface onSavedListener {
+    public interface OnSavedListener {
         public void onSuccess(String path);
 
         public void onFailed(String errorMsg);
