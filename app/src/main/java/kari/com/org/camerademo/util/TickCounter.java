@@ -7,125 +7,112 @@ import android.util.Log;
 /**
  * Created by ws-kari on 15-4-1.
  */
-public final class TickCounter implements Runnable {
-
+public final class TickCounter {
     final static String TAG = "TickCounter";
-    final static int TIME_ESCAPED = 0x10;
 
-    private boolean mPauseFlag;
-    private boolean mRunFlag;
-    private long mCounter;
-    private final int mCircle;
-    private onNotifyCallback mCallback;
-    private Runnable mRunnable;
+    final static int TIME_ESCAPED = 0x1000;
+    final static int LONG_TIME_ESCAPED = 0X1001;
+
+    private Handler mHandler;
+    private int mCircle;
+    private int mCircleLong;
+    private OnNotifyCallback mCallback;
+    private OnNotifyCallback mCallbackLong;
 
     public TickCounter() {
-        mPauseFlag = true;
-        mRunFlag = true;
-        mCounter = 0;
         mCircle = 0;
-        create();
-    }
-
-    private void create() {
-        new Thread(this).start();
+        mCircleLong = 0;
     }
 
     /**
-     * @param circle   the notify circle (in second)
-     * @param callback
+     * @param circle   the notify circle (in millisecond)
+     * @param callback the callback
+     * @see setLongNotifyCallback(int circle2, OnNotifyCallback callback2);  circle2 must > circle
      */
-    public void setNotifyCallback(int circle, onNotifyCallback callback) {
+    public void setNotifyCallback(int circle, final OnNotifyCallback callback) {
         if (circle <= 0) {
             Log.e(TAG, "circle must be positive number ");
             throw new RuntimeException("circle must be positive number ");
         }
 
         if (null != mCallback) {
-            Log.e(TAG, "Only one client can be registered");
-            throw new RuntimeException("Only one client can be registered");
+            Log.e(TAG, "setNotifyCallback can be called only once");
+            throw new RuntimeException("setNotifyCallback can be called only once");
         }
-        mCallback = callback;
 
-        mRunnable = new Runnable() {
+        mCircle = circle;
+        mCallback = callback;
+        mHandler = new Handler() {
             @Override
-            public void run() {
-                mCallback.onEscaped();
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+
+                switch (msg.what) {
+                    case TIME_ESCAPED:
+                        callback.onEscaped();
+                        if (null != mCallbackLong) {
+                            sendEmptyMessageDelayed(LONG_TIME_ESCAPED, mCircleLong);
+                        }
+                        break;
+
+                    case LONG_TIME_ESCAPED:
+                        mCallbackLong.onEscaped();
+                        break;
+                }
             }
         };
+    }
+
+    /**
+     * @param circle   the notify circle (in millisecond)
+     * @param callback the callback
+     * @see setNotifyCallback(int circle1, OnNotifyCallback callback2);  circle must > circle1
+     */
+    public void setLongNotifiyCallback(int circle, OnNotifyCallback callback) {
+        if (mCircle <= 0) {
+            Log.e(TAG, "please call setNotifyCallback first");
+            return;
+        }
+
+        if (circle < mCircle) {
+            Log.e(TAG, "circle must > circle2 in setNotifyCallback");
+            return;
+        }
+
+        if (null != mCallbackLong) {
+            Log.e(TAG, "setLongNotifyCallback can be called only once");
+            throw new RuntimeException("setLongNotifyCallback can be called only once");
+        }
+
+        mCircleLong = circle;
+        mCallbackLong = callback;
     }
 
     /**
      * Start tick count
      */
     public void start() {
-        mPauseFlag = false;
-        mCounter = 0;
-        mHandler.postDelayed(mRunnable, mCircle * 1000);
+        if (null == mHandler) {
+            Log.e(TAG, "please invoke setNotifyCallback first");
+            return;
+        }
+        mHandler.sendEmptyMessageDelayed(TIME_ESCAPED, mCircle);
     }
 
     /**
-     * Pause tick count
+     * Restart tick count
      */
-    public void pause() {
-        mPauseFlag = true;
-        mCounter = 0;
-        mHandler.removeCallbacks(mRunnable);
-    }
-
-    /**
-     * Stop notify tick escaped and free the resource.
-     *
-     * @notice: Remember call me after not use TickCounter any more
-     */
-    public void stop() {
-        mRunFlag = false;
-    }
-
-    private Handler mHandler = new Handler() {
-
-        Runnable mRunnable = new Runnable() {
-            @Override
-            public void run() {
-                mCallback.onEscaped();
-            }
-        };
-
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            Log.d(TAG, "handleMessage()");
-            start();
+    public void restart() {
+        if (null == mHandler) {
+            Log.e(TAG, "please invoke setNotifyCallback first");
+            return;
         }
-    };
-
-    @Override
-    public void run() {
-        while (mRunFlag) {
-            try {
-                Thread.sleep(100);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            /*
-            if (mPauseFlag) {
-                continue;
-            }
-            */
-
-            ++mCounter;
-            //avoid over flow
-            if (mCounter >= 10000) {
-                mCounter = 10000;
-            }
-            if (mCounter / 10 >= mCircle) {
-                mHandler.sendEmptyMessage(TIME_ESCAPED);
-            }
-        }
+        mHandler.removeMessages(TIME_ESCAPED);
+        mHandler.sendEmptyMessageDelayed(TIME_ESCAPED, mCircle);
+        mHandler.removeMessages(LONG_TIME_ESCAPED);
     }
 
-    public interface onNotifyCallback {
+    public interface OnNotifyCallback {
         public void onEscaped();
     }
 }

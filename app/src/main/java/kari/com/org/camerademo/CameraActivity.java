@@ -8,6 +8,7 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.widget.SeekBar;
 
 import kari.com.org.camerademo.kari.com.org.camerademo.util.FileUtil;
 import kari.com.org.camerademo.util.TickCounter;
@@ -40,7 +41,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
     @Override
     protected void onResume() {
         super.onResume();
-        mTickCounter.start();
+        mTickCounter.restart();
 
         mCamera = CameraManager.getsInstance().openDefault();
         if (null != mCamera) {
@@ -53,23 +54,22 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
             mCamera.setDisplayOrientation(90);
             mCamera.startPreview();
         }
+
+        mFootFragment.initSeekbar(mCamera);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        mTickCounter.pause();
+        if (null != mCamera) {
+            mCamera.stopPreview();
+        }
         CameraManager.getsInstance().freeCamera();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mTickCounter.stop();
-    }
-
-    public Camera getCamera() {
-        return mCamera;
     }
 
     private void initView() {
@@ -103,29 +103,64 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
     }
 
     private void setListener() {
-        mSurfaceView.setOnTouchListener(new View.OnTouchListener() {
+        View.OnTouchListener touchListener = new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                if (MotionEvent.ACTION_DOWN == event.getAction()) {
-                    showCameraController();
-                    mTickCounter.pause();
-                }
+                Log.d(TAG, "onTouch");
+                showFocusSeekbar();
+                mTickCounter.restart();
                 return false;
             }
-        });
+        };
+        mSurfaceView.setOnTouchListener(touchListener);
+        mLayoutController.setOnTouchListener(touchListener);
 
         mTitleFragment.setCameraSwitchedListener(new TitleFragment.cameraSwitchedListener() {
             @Override
             public void onSwitched() {
+                mTickCounter.restart();
                 updateSurfaceView();
             }
         });
 
-        mTickCounter.setNotifyCallback(5, new TickCounter.onNotifyCallback() {
+        mTickCounter.setNotifyCallback(5 * 1000, new TickCounter.OnNotifyCallback() {
             @Override
             public void onEscaped() {
                 Log.d(TAG, "onEscapted()");
-                hideCameraController();
+                hideFocusSeekbar();
+            }
+        });
+
+        mTickCounter.setLongNotifiyCallback(6 * 1000, new TickCounter.OnNotifyCallback() {
+            @Override
+            public void onEscaped() {
+                Log.d(TAG, "onLongEscapted()");
+                MessageDialog.info(CameraActivity.this, getString(R.string.no_operation_tips));
+            }
+        });
+
+        mFootFragment.getSeekBar().setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                changeCameraZoom(progress);
+                mTickCounter.restart();
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                mTickCounter.restart();
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
+        mFootFragment.getButton().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                takePhone();
             }
         });
     }
@@ -189,11 +224,11 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
         mCamera.startPreview();
     }
 
-    public void hideCameraController() {
-        mLayoutController.setVisibility(View.GONE);
+    public void hideFocusSeekbar() {
+        mFootFragment.hideSeekbar();
     }
 
-    public void showCameraController() {
-        mLayoutController.setVisibility(View.VISIBLE);
+    public void showFocusSeekbar() {
+        mFootFragment.showSeekbar();
     }
 }
