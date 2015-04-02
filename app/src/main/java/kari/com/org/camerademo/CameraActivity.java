@@ -61,6 +61,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
     @Override
     protected void onPause() {
         super.onPause();
+        mTickCounter.pause();
         if (null != mCamera) {
             mCamera.stopPreview();
         }

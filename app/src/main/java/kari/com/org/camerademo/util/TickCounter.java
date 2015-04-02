@@ -112,6 +112,14 @@ public final class TickCounter {
         mHandler.removeMessages(LONG_TIME_ESCAPED);
     }
 
+    /**
+     * Pause the tick count
+     */
+    public void pause() {
+        mHandler.removeMessages(TIME_ESCAPED);
+        mHandler.removeMessages(LONG_TIME_ESCAPED);
+    }
+
     public interface OnNotifyCallback {
         public void onEscaped();
     }
