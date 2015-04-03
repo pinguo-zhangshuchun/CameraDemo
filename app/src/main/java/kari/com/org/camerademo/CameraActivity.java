@@ -15,6 +15,7 @@ import android.widget.SeekBar;
 import java.util.List;
 
 import kari.com.org.camerademo.util.FileUtil;
+import kari.com.org.camerademo.util.SizeUtil;
 import kari.com.org.camerademo.util.TickCounter;
 
 /**
@@ -204,8 +205,23 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
                     int w = mPopupWindow.getContentView().getWidth();
                     int x = mTitleFragment.getBtnSwitch().getLeft();
                     int y = mTitleFragment.getBtnSwitch().getBottom();
-                    mPopupWindow.showAtLocation(anchor, Gravity.NO_GRAVITY, x - w, y );
+                    mPopupWindow.showAtLocation(anchor, Gravity.NO_GRAVITY, x - w, y);
                 }
+            }
+        });
+
+        mPopupWindow.setPictureSizeChangedListener(new ResolutionPopupWindow.OnPictureSizeChangeListener() {
+            @Override
+            public void onChanged(Camera.Size size) {
+                Log.d(TAG, "onSizeChanged:" + size.width + " x " + size.height);
+                Camera.Size bestSize = SizeUtil.get(CameraActivity.this).getBestPreviewSize(size);
+                mCamera = CameraManager.getsInstance().openDefault();
+                Camera.Parameters param = mCamera.getParameters();
+                param.setPictureSize(size.width, size.height);
+                param.setPreviewSize(bestSize.width, bestSize.height);
+                mCamera.stopPreview();
+                mCamera.setParameters(param);
+                mCamera.startPreview();
             }
         });
     }
