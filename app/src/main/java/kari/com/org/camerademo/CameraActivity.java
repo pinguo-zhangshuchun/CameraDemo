@@ -10,6 +10,7 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.animation.AnimationUtils;
 import android.widget.SeekBar;
 
 import java.util.List;
@@ -133,12 +134,14 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
         mTitleFragment.setCameraSwitchedListener(new TitleFragment.cameraSwitchedListener() {
             @Override
             public void onSwitched() {
+                mSurfaceView.startAnimation(AnimationUtils.loadAnimation(CameraActivity.this, R.anim.camera_switch));
                 mTickCounter.restart();
                 mCamera = CameraManager.getsInstance().openDefault();
                 Camera.Parameters param = mCamera.getParameters();
                 mPopupWindow.setDataSource(param.getSupportedPictureSizes());
                 mPopupWindow.setCurrCameraSize(param.getPictureSize());
                 mPopupWindow.dismiss();
+            }
         });
 
         mTickCounter.setNotifyCallback(3 * 1000, new TickCounter.OnNotifyCallback() {
