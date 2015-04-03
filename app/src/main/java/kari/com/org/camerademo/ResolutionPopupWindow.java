@@ -23,14 +23,16 @@ public final class ResolutionPopupWindow {
     private ListView mListView;
     private List<Camera.Size> mSizes;
     private MyAdapter mAdapter;
-    private boolean isShowing;
+    private Camera.Size mCurrSize;
+    private OnPictureSizeChangeListener mListener;
 
     public ResolutionPopupWindow(Context context) {
         mContext = context;
-        isShowing = false;
+        LayoutInflater mInflater = LayoutInflater.from(context);
+        View mRootView = mInflater.inflate(R.layout.view_popupwindow, null);
+        mListView = (ListView) mRootView.findViewById(R.id.popupwindow_listview);
 
-        mListView = new ListView(context);
-        mPopupWindow = new PopupWindow(mListView,
+        mPopupWindow = new PopupWindow(mRootView,
                 RelativeLayout.LayoutParams.WRAP_CONTENT,
                 RelativeLayout.LayoutParams.WRAP_CONTENT,
                 false);
@@ -45,24 +47,39 @@ public final class ResolutionPopupWindow {
             mListView.setAdapter(mAdapter);
         } else {
             mSizes = list;
+        }
+    }
+
+    public View getContentView() {
+        return mPopupWindow.getContentView();
+    }
+
+    public boolean isShowing() {
+        return mPopupWindow.isShowing();
+    }
+
+    public void setCurrCameraSize(Camera.Size size) {
+        mCurrSize = size;
+        if (null != mAdapter) {
             mAdapter.notifyDataSetChanged();
         }
     }
 
-    public boolean isShowing() {
-        return isShowing;
+    public void setPictureSizeChangedListener(OnPictureSizeChangeListener listener) {
+        mListener = listener;
     }
 
     public void showAtLocation(View v, int gravity, int x, int y) {
-        isShowing = true;
         mPopupWindow.showAtLocation(v, gravity, x, y);
     }
 
-    public void dismiss() {
-        isShowing = false;
-        mPopupWindow.dismiss();
+    public void showAsDropDown(View view) {
+        mPopupWindow.showAsDropDown(view);
     }
 
+    public void dismiss() {
+        mPopupWindow.dismiss();
+    }
 
     final class MyAdapter extends BaseAdapter {
         LayoutInflater mInflater;
@@ -87,7 +104,7 @@ public final class ResolutionPopupWindow {
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(final int position, View convertView, ViewGroup parent) {
             ViewHolder holder = null;
 
             if (null == convertView) {
@@ -103,6 +120,25 @@ public final class ResolutionPopupWindow {
             String label = mSizes.get(position).width + " x " + mSizes.get(position).height;
             holder.tv.setText(label);
 
+            if (mSizes.get(position).equals(mCurrSize)) {
+                holder.label.setVisibility(View.VISIBLE);
+            } else {
+                holder.label.setVisibility(View.INVISIBLE);
+            }
+
+            convertView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (!mSizes.get(position).equals(mCurrSize)) {
+                        mCurrSize = mSizes.get(position);
+                        notifyDataSetChanged();
+                        if (null != mListener) {
+                            mListener.onChanged(mCurrSize);
+                        }
+                    }
+                }
+            });
+
             return convertView;
         }
 
@@ -112,4 +148,7 @@ public final class ResolutionPopupWindow {
         }
     }
 
+    public interface OnPictureSizeChangeListener {
+        public void onChanged(Camera.Size size);
+    }
 }

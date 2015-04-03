@@ -45,6 +45,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
 
     @Override
     protected void onResume() {
+        Log.d(TAG, "onResume()");
         super.onResume();
         mTickCounter.restart();
         mCamera = CameraManager.getsInstance().openDefault();
@@ -64,6 +65,8 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
 
     @Override
     protected void onPause() {
+        Log.d(TAG, "onPause");
+        super.onPause();
         mTickCounter.pause();
         if (null != mCamera) {
             mCamera.stopPreview();
@@ -73,8 +76,6 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
         if (null != mPopupWindow) {
             mPopupWindow.dismiss();
         }
-
-        super.onPause();
     }
 
     @Override
@@ -132,7 +133,11 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
             @Override
             public void onSwitched() {
                 mTickCounter.restart();
-                updateSurfaceView();
+                mCamera = CameraManager.getsInstance().openDefault();
+                Camera.Parameters param = mCamera.getParameters();
+                mPopupWindow.setDataSource(param.getSupportedPictureSizes());
+                mPopupWindow.setCurrCameraSize(param.getPictureSize());
+                mPopupWindow.dismiss();
             }
         });
 
@@ -195,14 +200,14 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
                 if (mPopupWindow.isShowing()) {
                     mPopupWindow.dismiss();
                 } else {
-                    mPopupWindow.showAtLocation(mLayoutController, Gravity.TOP, 0, 50);
+                    View anchor = mTitleFragment.getBtnSwitch();
+                    int w = mPopupWindow.getContentView().getWidth();
+                    int x = mTitleFragment.getBtnSwitch().getLeft();
+                    int y = mTitleFragment.getBtnSwitch().getBottom();
+                    mPopupWindow.showAtLocation(anchor, Gravity.NO_GRAVITY, x - w, y );
                 }
             }
         });
-    }
-
-    private void updateSurfaceView() {
-        mFootFragment.onResume();
     }
 
     public void surfaceCreated(SurfaceHolder holder) {
@@ -217,6 +222,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
 
             List<Camera.Size> picSizes = param.getSupportedPictureSizes();
             mPopupWindow.setDataSource(picSizes);
+            mPopupWindow.setCurrCameraSize(param.getPictureSize());
         }
     }
 
@@ -235,6 +241,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
     }
 
     public void surfaceDestroyed(SurfaceHolder holder) {
+        Log.d(TAG, "surfaceDestroyed()");
         if (null != mCamera) {
             mCamera.release();
             mCamera = null;

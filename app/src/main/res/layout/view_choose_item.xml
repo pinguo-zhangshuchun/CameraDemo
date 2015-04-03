@@ -1,27 +1,27 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:background="@android:color/transparent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:padding="5dip">
+
+    <TextView
+        android:id="@+id/item_choose_tv"
+        android:layout_width="80dip"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:gravity="left"
+        android:text="320 x 480" />
 
     <TextView
         android:id="@+id/item_choose_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginLeft="10dip"
-        android:gravity="center"
-        android:text="O"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="10dip"
+        android:layout_toLeftOf="@+id/item_choose_tv"
+        android:text="+"
         android:textColor="@android:color/holo_red_light" />
 
-    <TextView
-        android:id="@+id/item_choose_tv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginLeft="10dip"
-        android:layout_toRightOf="@+id/item_choose_label"
-        android:gravity="center" />
+
 </RelativeLayout>
