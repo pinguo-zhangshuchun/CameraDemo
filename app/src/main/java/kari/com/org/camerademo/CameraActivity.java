@@ -139,7 +139,6 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
                 mPopupWindow.setDataSource(param.getSupportedPictureSizes());
                 mPopupWindow.setCurrCameraSize(param.getPictureSize());
                 mPopupWindow.dismiss();
-            }
         });
 
         mTickCounter.setNotifyCallback(3 * 1000, new TickCounter.OnNotifyCallback() {
