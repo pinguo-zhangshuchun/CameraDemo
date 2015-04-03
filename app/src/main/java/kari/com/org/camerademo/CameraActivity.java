@@ -132,6 +132,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
             @Override
             public void onSwitched() {
                 mTickCounter.restart();
+                mPopupWindow.dismiss();
                 updateSurfaceView();
             }
         });
