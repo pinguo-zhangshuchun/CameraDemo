@@ -1,9 +1,7 @@
 package kari.com.org.camerademo.util;
 
-import android.content.Context;
 import android.hardware.Camera;
 import android.util.Log;
-import android.view.WindowManager;
 
 import java.util.List;
 
@@ -16,14 +14,12 @@ public final class SizeUtil {
     final static String TAG = "SizeUtil";
     final static float MIN_ERROR = 0.01f;
     static SizeUtil _sInstance;
-    private float mScreenAspectRatio;
-    private Context mContext;
 
-    public static SizeUtil get(Context context) {
+    public static SizeUtil get() {
         if (null == _sInstance) {
             synchronized (SizeUtil.class) {
                 if (null == _sInstance) {
-                    _sInstance = new SizeUtil(context);
+                    _sInstance = new SizeUtil();
                 }
             }
         }
@@ -31,20 +27,8 @@ public final class SizeUtil {
         return _sInstance;
     }
 
-    private SizeUtil(Context context) {
-        mContext = context;
-        getScreenAspectRatio(context);
-    }
+    private SizeUtil() {
 
-    private void getScreenAspectRatio(Context context) {
-        if (null == context) {
-            throw new NullPointerException("activity is null");
-        }
-        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-        int width = wm.getDefaultDisplay().getWidth();
-        int height = wm.getDefaultDisplay().getHeight();
-        mScreenAspectRatio = width / (float) height;
-        Log.d(TAG, "width:" + width + ",height:" + height + ",ratio:" + mScreenAspectRatio);
     }
 
     public Camera.Size getBestPreviewSize(Camera.Size picSize) {
@@ -52,18 +36,24 @@ public final class SizeUtil {
         if (null == camera) {
             throw new RuntimeException("CameraManager.openDefault return null");
         }
-
-        Log.d(TAG, "picSize width:" + picSize.width + ",height:" + picSize.height + ",ratio:" + picSize.width / (float) picSize.height);
+        final float picRatio = picSize.width / (float) picSize.height;
+        Log.d(TAG, "picSize width:" + picSize.width + ",height:" + picSize.height + ",ratio:" + picRatio);
 
         List<Camera.Size> prevSizes = camera.getParameters().getSupportedPreviewSizes();
-        Camera.Size bestSize = prevSizes.get(0);
+        Camera.Size bestSize = null;
         for (Camera.Size s : prevSizes) {
             float ratio = s.width / (float) s.height;
-            if (ratio >= mScreenAspectRatio - MIN_ERROR && ratio <= mScreenAspectRatio + MIN_ERROR) {
-                if (s.width > bestSize.width) {
+            if (ratio >= picRatio - MIN_ERROR && ratio <= picRatio + MIN_ERROR) {
+                Log.d(TAG, "width:" + s.width + ",height:" + s.height + ",ratio:" + s.width / (float) s.height);
+                if (null == bestSize || s.width > bestSize.width) {
                     bestSize = s;
                 }
             }
+        }
+
+        if (null == bestSize) {
+            Log.d(TAG, "Failed find the best preview size. So select the first suported prevsize");
+            bestSize = prevSizes.get(0);
         }
 
         Log.d(TAG, "best size width:" + bestSize.width + ",height:" + bestSize.height + ",ratio:" + bestSize.width / (float) bestSize.height);

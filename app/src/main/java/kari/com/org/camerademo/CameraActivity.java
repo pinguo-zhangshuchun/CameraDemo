@@ -216,7 +216,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
             @Override
             public void onChanged(Camera.Size size) {
                 Log.d(TAG, "onSizeChanged:" + size.width + " x " + size.height);
-                Camera.Size bestSize = SizeUtil.get(CameraActivity.this).getBestPreviewSize(size);
+                Camera.Size bestSize = SizeUtil.get().getBestPreviewSize(size);
                 mCamera = CameraManager.getsInstance().openDefault();
                 Camera.Parameters param = mCamera.getParameters();
                 param.setPictureSize(size.width, size.height);
