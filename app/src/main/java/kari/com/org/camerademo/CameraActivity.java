@@ -7,14 +7,10 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.SeekBar;
-
 import java.util.List;
-
 import kari.com.org.camerademo.util.FileUtil;
 import kari.com.org.camerademo.util.SizeUtil;
 import kari.com.org.camerademo.util.TickCounter;
@@ -22,12 +18,11 @@ import kari.com.org.camerademo.util.TickCounter;
 /**
  * Camera Activity
  */
-public class CameraActivity extends Activity implements SurfaceHolder.Callback {
+public class CameraActivity extends Activity {
     final static String TAG = "CameraActivity";
 
     private Camera mCamera;
-    private SurfaceView mSurfaceView;
-    private SurfaceHolder mSurfaceHolder;
+    private CameraPreview mPreview;
     private View mLayoutController;
     private TitleFragment mTitleFragment;
     private FootFragment mFootFragment;
@@ -39,7 +34,6 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
         findView();
-        initHolder();
         initView();
         mTickCounter = new TickCounter();
         setListener();
@@ -52,14 +46,12 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
         mTickCounter.restart();
         mCamera = CameraManager.getsInstance().openDefault();
         if (null != mCamera) {
-            try {
-                mCamera.setPreviewDisplay(mSurfaceHolder);
-            } catch (Exception e) {
-                Log.e(TAG, "Failed setPreviewDisplay");
-            }
-
-            mCamera.setDisplayOrientation(90);
-            mCamera.startPreview();
+            Camera.Parameters param = mCamera.getParameters();
+            mCamera.setParameters(param);
+            List<Camera.Size> picSizes = param.getSupportedPictureSizes();
+            mPopupWindow.setDataSource(picSizes);
+            mPopupWindow.setCurrCameraSize(param.getPictureSize());
+            mPreview.setCamera(mCamera);
         }
 
         mFootFragment.initSeekbar(mCamera);
@@ -82,7 +74,6 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
 
     @Override
     protected void onDestroy() {
-
         super.onDestroy();
     }
 
@@ -95,14 +86,8 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
         mPopupWindow = new ResolutionPopupWindow(this);
     }
 
-    private void initHolder() {
-        mSurfaceHolder = mSurfaceView.getHolder();
-        mSurfaceHolder.addCallback(this);
-        mSurfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-    }
-
     private void findView() {
-        mSurfaceView = (SurfaceView) findViewById(R.id.camera_surfaceview);
+        mPreview = (CameraPreview) findViewById(R.id.camera_preview);
         mLayoutController = findViewById(R.id.camera_layout_controller);
         mTitleFragment = (TitleFragment) getFragmentManager().findFragmentById(R.id.fragment_title);
         mFootFragment = (FootFragment) getFragmentManager().findFragmentById(R.id.fragment_foot);
@@ -128,19 +113,21 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
                 return false;
             }
         };
-        mSurfaceView.setOnTouchListener(touchListener);
+        mPreview.setOnTouchListener(touchListener);
         mLayoutController.setOnTouchListener(touchListener);
 
         mTitleFragment.setCameraSwitchedListener(new TitleFragment.cameraSwitchedListener() {
             @Override
             public void onSwitched() {
-                mSurfaceView.startAnimation(AnimationUtils.loadAnimation(CameraActivity.this, R.anim.camera_switch));
+                mPreview.startAnimation(AnimationUtils.loadAnimation(CameraActivity.this, R.anim.camera_switch));
                 mTickCounter.restart();
                 mCamera = CameraManager.getsInstance().openDefault();
                 Camera.Parameters param = mCamera.getParameters();
                 mPopupWindow.setDataSource(param.getSupportedPictureSizes());
                 mPopupWindow.setCurrCameraSize(param.getPictureSize());
                 mPopupWindow.dismiss();
+                mPreview.setCamera(mCamera);
+                mFootFragment.initSeekbar(mCamera);
             }
         });
 
@@ -228,44 +215,6 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
         });
     }
 
-    public void surfaceCreated(SurfaceHolder holder) {
-        Log.d(TAG, "surfaceCreated");
-        if (null == mCamera) {
-            mCamera = CameraManager.getsInstance().openDefault();
-        }
-        if (null != mCamera) {
-            Camera.Parameters param = mCamera.getParameters();
-            mCamera.setParameters(param);
-            mCamera.setDisplayOrientation(90);
-
-            List<Camera.Size> picSizes = param.getSupportedPictureSizes();
-            mPopupWindow.setDataSource(picSizes);
-            mPopupWindow.setCurrCameraSize(param.getPictureSize());
-        }
-    }
-
-    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-        Log.d(TAG, "surfaceChanged");
-        try {
-            mCamera.setPreviewDisplay(mSurfaceHolder);
-        } catch (Exception e) {
-            mCamera.release();
-            mCamera = null;
-            Log.e(TAG, "Failed setPreviewDisplay");
-            e.printStackTrace();
-            return;
-        }
-        mCamera.startPreview();
-    }
-
-    public void surfaceDestroyed(SurfaceHolder holder) {
-        Log.d(TAG, "surfaceDestroyed()");
-        if (null != mCamera) {
-            mCamera.release();
-            mCamera = null;
-        }
-    }
-
     public void takePhone() {
         mCamera.takePicture(null, null, new Camera.PictureCallback() {
             @Override
@@ -289,14 +238,6 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
 
     public void switchCamera() {
         mCamera = CameraManager.getsInstance().switchCamera();
-        try {
-            mCamera.setPreviewDisplay(mSurfaceHolder);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return;
-        }
-        mCamera.setDisplayOrientation(90);
-        mCamera.startPreview();
     }
 
     public void hideFocusSeekbar() {
