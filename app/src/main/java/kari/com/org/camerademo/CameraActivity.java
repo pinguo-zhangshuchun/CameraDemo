@@ -1,6 +1,7 @@
 package kari.com.org.camerademo;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.hardware.Camera;
 import android.os.Bundle;
@@ -10,7 +11,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.SeekBar;
+
 import java.util.List;
+
 import kari.com.org.camerademo.util.FileUtil;
 import kari.com.org.camerademo.util.SizeUtil;
 import kari.com.org.camerademo.util.TickCounter;
@@ -143,7 +146,13 @@ public class CameraActivity extends Activity {
             @Override
             public void onEscaped() {
                 Log.d(TAG, "onLongEscapted()");
-                MessageDialog.info(CameraActivity.this, getString(R.string.no_operation_tips));
+                MessageDialog.info(CameraActivity.this, getString(R.string.no_operation_tips), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        mCamera.startPreview();
+                    }
+                });
+                mCamera.stopPreview();
             }
         });
 
@@ -211,6 +220,7 @@ public class CameraActivity extends Activity {
                 mCamera.stopPreview();
                 mCamera.setParameters(param);
                 mCamera.startPreview();
+                mPreview.setAspectRatio(size.height / (float) size.width);
             }
         });
     }

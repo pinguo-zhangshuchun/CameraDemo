@@ -12,7 +12,7 @@ import kari.com.org.camerademo.CameraManager;
  */
 public final class SizeUtil {
     final static String TAG = "SizeUtil";
-    final static float MIN_ERROR = 0.01f;
+    public final static float MIN_ERROR = 0.01f;
     static SizeUtil _sInstance;
 
     public static SizeUtil get() {

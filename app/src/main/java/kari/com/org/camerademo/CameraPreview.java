@@ -9,11 +9,13 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.RelativeLayout;
 
+import kari.com.org.camerademo.util.SizeUtil;
+
 /**
  * Created by ws-kari on 15-4-7.
  */
 public class CameraPreview extends RelativeLayout implements SurfaceHolder.Callback {
-    final static String TAG = "CameraSurfaceView";
+    final static String TAG = "CameraPreview";
 
     private Context mContext;
     private SurfaceView mSurfaceView;
@@ -40,21 +42,6 @@ public class CameraPreview extends RelativeLayout implements SurfaceHolder.Callb
         mHolder = mSurfaceView.getHolder();
         mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
         mHolder.addCallback(this);
-
-        mWidth = getWidth();
-        mHeight = getHeight();
-
-        Log.d(TAG, "width:" + mWidth + ",height:" + mHeight);
-    }
-
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-    }
-
-    @Override
-    protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        super.onLayout(changed, l, t, r, b);
     }
 
     @Override
@@ -77,6 +64,7 @@ public class CameraPreview extends RelativeLayout implements SurfaceHolder.Callb
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
         Log.d(TAG, "surfaceChanged");
+        Log.d(TAG, "width:" + width + ",height:" + height);
         try {
             mCamera.setPreviewDisplay(mHolder);
         } catch (Exception e) {
@@ -120,8 +108,41 @@ public class CameraPreview extends RelativeLayout implements SurfaceHolder.Callb
         mCamera.startPreview();
     }
 
-    public void setAspectRatio(float ratio) {
+    private void resizePreview(int width, int height) {
+        Log.d(TAG, "resizePreview()");
+        Log.d(TAG, "width=" + width + ",height=" + height);
+        getLayoutParams().width = width;
+        getLayoutParams().height = height;
+        requestLayout();
+    }
 
+    public void setAspectRatio(float ratio) {
+        Log.d(TAG, "setAspectRatio()");
+        final float currentRatio = mWidth / (float) mHeight;
+        Log.d(TAG, "expect ratio=" + ratio + " screen ratio=" + currentRatio);
+
+        // the current view aspect ratio is good
+        if (ratio >= currentRatio - SizeUtil.MIN_ERROR && ratio <= currentRatio + SizeUtil.MIN_ERROR) {
+            resizePreview(mWidth, mHeight);
+            return;
+        }
+
+        int w = mWidth;
+        int h = mHeight;
+
+        // zoom out  (make short)  the height of SurfaceView's parent layout
+        if (ratio > currentRatio + SizeUtil.MIN_ERROR) {
+            h = (int) (h * currentRatio / ratio);
+            resizePreview(w, h);
+            return;
+        }
+
+        // zoom out ( make short ) the width of SurfaceView's parent layout.
+        if (ratio < currentRatio - SizeUtil.MIN_ERROR) {
+            w = (int) (w * ratio / currentRatio);
+            resizePreview(w, h);
+            return;
+        }
     }
 
 }
