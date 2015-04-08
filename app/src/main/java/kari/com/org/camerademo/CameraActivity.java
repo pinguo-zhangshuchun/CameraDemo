@@ -215,9 +215,7 @@ public class CameraActivity extends Activity {
                 Camera.Parameters param = mCamera.getParameters();
                 param.setPictureSize(size.width, size.height);
                 param.setPreviewSize(bestSize.width, bestSize.height);
-                mCamera.stopPreview();
                 mCamera.setParameters(param);
-                mCamera.startPreview();
                 mPreview.setAspectRatio(size.height / (float) size.width);
             }
         });

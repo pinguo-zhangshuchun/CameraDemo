@@ -73,7 +73,6 @@ public class CameraPreview extends RelativeLayout implements SurfaceHolder.Callb
             e.printStackTrace();
             return;
         }
-        mCamera.startPreview();
     }
 
     @Override
