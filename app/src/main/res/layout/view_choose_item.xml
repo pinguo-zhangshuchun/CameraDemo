@@ -11,7 +11,8 @@
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:gravity="left"
-        android:text="320 x 480" />
+        android:text="320 x 480"
+        android:textColor="@android:color/holo_red_light" />
 
     <TextView
         android:id="@+id/item_choose_label"

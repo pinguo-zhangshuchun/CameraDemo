@@ -4,8 +4,8 @@
     android:layout_height="match_parent"
     android:background="#000000">
 
-    <SurfaceView
-        android:id="@+id/camera_surfaceview"
+    <kari.com.org.camerademo.CameraPreview
+        android:id="@+id/camera_preview"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent" />
 
