@@ -21,7 +21,7 @@ public final class FileUtil {
     public final static String PATH = ROOT + "/" + DIR;
 
     public static void scanFile(Context context, String fName) {
-        Uri data = Uri.parse("file:///" + fName);
+        Uri data = Uri.fromFile(new File(fName));
         context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, data));
     }
 
