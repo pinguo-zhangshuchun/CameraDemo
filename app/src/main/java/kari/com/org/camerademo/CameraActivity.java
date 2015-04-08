@@ -11,9 +11,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.SeekBar;
-
 import java.util.List;
-
 import kari.com.org.camerademo.util.FileUtil;
 import kari.com.org.camerademo.util.SizeUtil;
 import kari.com.org.camerademo.util.TickCounter;

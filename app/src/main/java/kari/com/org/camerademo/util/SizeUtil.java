@@ -2,9 +2,7 @@ package kari.com.org.camerademo.util;
 
 import android.hardware.Camera;
 import android.util.Log;
-
 import java.util.List;
-
 import kari.com.org.camerademo.CameraManager;
 
 /**

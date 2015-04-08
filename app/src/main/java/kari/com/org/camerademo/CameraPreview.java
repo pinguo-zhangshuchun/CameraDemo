@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.RelativeLayout;
-
 import kari.com.org.camerademo.util.SizeUtil;
 
 /**
