@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.RelativeLayout;
+
 import kari.com.org.camerademo.util.SizeUtil;
 
 /**
@@ -102,7 +103,12 @@ public class CameraPreview extends RelativeLayout implements SurfaceHolder.Callb
             Log.e(TAG, e.getMessage());
             e.printStackTrace();
         }
-
+        Camera.Parameters param = camera.getParameters();
+        Camera.Size s = param.getPictureSize();
+        s.width = mHeight;
+        s.height = mWidth;
+        Camera.Size bestSize = SizeUtil.get().getBestPreviewSize(s);
+        setAspectRatio(bestSize.height / (float) bestSize.width);
         mCamera.startPreview();
     }
 
