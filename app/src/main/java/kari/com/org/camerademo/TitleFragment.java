@@ -68,6 +68,24 @@ public class TitleFragment extends Fragment implements View.OnClickListener {
                 mActivity.setExposureCompensation(seekProgress);
             }
         });
+
+        mSettingView.getmSeekBarBalance().setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                int seekProgress = seekBar.getProgress();
+                mActivity.setWhiteBalance(seekProgress);
+            }
+        });
     }
 
     public Button getBtnSwitch() {
@@ -84,6 +102,7 @@ public class TitleFragment extends Fragment implements View.OnClickListener {
             case R.id.title_btn_switch:
                 mActivity.switchCamera();
                 mSettingView.initExposureSeekBar();
+                mSettingView.initBalanceSeekBar();
                 if (null != mListener) {
                     mListener.onSwitched();
                 }

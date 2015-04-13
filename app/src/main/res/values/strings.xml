@@ -8,4 +8,5 @@
     <string name="no_camera_tips">oh~oh, no camera found. \n I will exit.</string>
     <string name="no_operation_tips">camera is sleeping ~_~ touch me to wake up</string>
     <string name="exposure_compensation">exposure compensation</string>
+    <string name="white_balance">white balance</string>
 </resources>

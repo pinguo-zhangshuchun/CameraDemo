@@ -7,4 +7,5 @@
     <string name="no_camera_tips">哦豁~没有发现摄像头,我闪了~</string>
     <string name="no_operation_tips">长时间没有操作，相机正在休息，点击唤醒~</string>
     <string name="exposure_compensation">曝光增益</string>
+    <string name="white_balance">白平衡 </string>
 </resources>

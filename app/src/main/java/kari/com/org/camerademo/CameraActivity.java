@@ -263,10 +263,21 @@ public class CameraActivity extends Activity {
         int min = p.getMinExposureCompensation();
         float step = p.getExposureCompensationStep();
         int MAX = (int) ((max - min) / step);
-        int curr = (int)(value * step) + min;
+        int curr = (int) (value * step) + min;
         Log.d(TAG, "value=" + value);
         Log.d(TAG, "setExposureCompensation = " + curr);
         p.setExposureCompensation(curr);
         camera.setParameters(p);
     }
+
+    public void setWhiteBalance(int value) {
+        Camera camera = CameraManager.getsInstance().openDefault();
+        Camera.Parameters p = camera.getParameters();
+        List<String> balanceList = p.getSupportedWhiteBalance();
+        Log.d(TAG, "setWhiteBalance value=" + value);
+        Log.d(TAG, "balanceList.size=" + balanceList.size());
+        p.setWhiteBalance(balanceList.get(value));
+        camera.setParameters(p);
+    }
+
 }
