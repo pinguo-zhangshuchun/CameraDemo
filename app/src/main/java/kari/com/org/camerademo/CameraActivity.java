@@ -11,7 +11,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.SeekBar;
+
 import java.util.List;
+
 import kari.com.org.camerademo.util.FileUtil;
 import kari.com.org.camerademo.util.SizeUtil;
 import kari.com.org.camerademo.util.TickCounter;
@@ -252,5 +254,19 @@ public class CameraActivity extends Activity {
 
     public void showFocusSeekbar() {
         mFootFragment.showSeekbar();
+    }
+
+    public void setExposureCompensation(int value) {
+        Camera camera = CameraManager.getsInstance().openDefault();
+        Camera.Parameters p = camera.getParameters();
+
+        int max = p.getMaxExposureCompensation();
+        int min = p.getMinExposureCompensation();
+        int cur = p.getExposureCompensation();
+
+        Log.d(TAG, "max="+max+",min="+min+",cur="+cur);
+
+        p.setExposureCompensation(value);
+        camera.setParameters(p);
     }
 }
