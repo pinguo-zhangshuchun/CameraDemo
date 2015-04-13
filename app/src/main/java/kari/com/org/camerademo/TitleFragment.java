@@ -3,7 +3,6 @@ package kari.com.org.camerademo;
 import android.app.Fragment;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -66,27 +65,7 @@ public class TitleFragment extends Fragment implements View.OnClickListener {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 int seekProgress = seekBar.getProgress();
-                if (seekProgress < 13) {
-                    seekBar.setProgress(0);
-                    mActivity.setExposureCompensation(-2);
-                    Log.d(TAG, "exposure -2");
-                } else if (seekProgress >= 13 && seekProgress < 38) {
-                    seekBar.setProgress(25);
-                    mActivity.setExposureCompensation(-1);
-                    Log.d(TAG, "exposure -1");
-                } else if (seekProgress >= 38 && seekProgress < 63) {
-                    seekBar.setProgress(50);
-                    mActivity.setExposureCompensation(0);
-                    Log.d(TAG, "exposure normal");
-                } else if (seekProgress >= 63 && seekProgress < 88) {
-                    seekBar.setProgress(75);
-                    mActivity.setExposureCompensation(+1);
-                    Log.d(TAG, "exposure +1");
-                } else if (seekProgress >= 88) {
-                    seekBar.setProgress(100);
-                    mActivity.setExposureCompensation(+2);
-                    Log.d(TAG, "exposure +2");
-                }
+                mActivity.setExposureCompensation(seekProgress);
             }
         });
     }

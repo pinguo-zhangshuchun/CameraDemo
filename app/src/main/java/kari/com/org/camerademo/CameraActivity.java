@@ -259,14 +259,14 @@ public class CameraActivity extends Activity {
     public void setExposureCompensation(int value) {
         Camera camera = CameraManager.getsInstance().openDefault();
         Camera.Parameters p = camera.getParameters();
-
         int max = p.getMaxExposureCompensation();
         int min = p.getMinExposureCompensation();
-        int cur = p.getExposureCompensation();
-
-        Log.d(TAG, "max="+max+",min="+min+",cur="+cur);
-
-        p.setExposureCompensation(value);
+        float step = p.getExposureCompensationStep();
+        int MAX = (int) ((max - min) / step);
+        int curr = (int)(value * step) + min;
+        Log.d(TAG, "value=" + value);
+        Log.d(TAG, "setExposureCompensation = " + curr);
+        p.setExposureCompensation(curr);
         camera.setParameters(p);
     }
 }

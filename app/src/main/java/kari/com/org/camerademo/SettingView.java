@@ -13,7 +13,6 @@ import android.widget.SeekBar;
  */
 public class SettingView extends RelativeLayout {
     final static String TAG = "SettingView";
-
     private Context mContext;
     private SeekBar mSeekBarExposure;
 
@@ -36,7 +35,6 @@ public class SettingView extends RelativeLayout {
     }
 
     public void initExposureSeekBar() {
-        mSeekBarExposure.setMax(100);
         Camera camera = CameraManager.getsInstance().openDefault();
         Camera.Parameters p = camera.getParameters();
         int max = p.getMaxExposureCompensation();
@@ -46,10 +44,13 @@ public class SettingView extends RelativeLayout {
 
         Log.d(TAG, "max=" + max + ",min=" + min + ",cur=" + cur + ",step=" + step);
 
-        if (max <= min) {
+        if (max <= min || (step >= -0.001 && step <= 0.001)) {
             mSeekBarExposure.setEnabled(false);
             return;
         }
+
+        mSeekBarExposure.setMax((int) ((max - min) / step));
+        mSeekBarExposure.setProgress((int) ((cur - min) / step));
     }
 
     public SeekBar getSeekBarExposure() {
